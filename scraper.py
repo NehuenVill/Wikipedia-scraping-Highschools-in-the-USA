@@ -1,3 +1,4 @@
+from this import s
 from bs4 import BeautifulSoup
 import pandas as pd
 import requests
@@ -9,8 +10,6 @@ import re
 
 parent_url = 'https://en.wikipedia.org/wiki/Category:Lists_of_high_schools_in_the_United_States_by_state'
 base_url = 'https://en.wikipedia.org'
-
-
 
 def get_state_urls(url):
 
@@ -40,7 +39,7 @@ def get_schools(states_urls):
 
     cleaning_pattern = r' -.{20,}|\(.*\)|\[.*\]'
 
-    key_words = ['Public', 'Private', 'ern', 'Central', 'Neighborhood', 'Admission', 'Charter', 'Defunc'] 
+    key_words = ['Public', 'Private', 'Western', 'Northern', 'Southern', 'Estern', 'Central', 'Neighborhood', 'Admission', 'Charter', 'Defunc'] 
 
     for url in states_urls:
 
@@ -95,150 +94,52 @@ def get_schools(states_urls):
                 
             #all_schools.append(diff_states(url, 'Wyoming'))
 
-        elif state_name != 'Massachusetts':
-            pass
+        #elif state_name == 'Massachusetts':
+         #   pass
+    
+        elif state_name == 'Pennsylvania':
 
-        counties = soup.find_all('h2')
+            counties = soup.find_all('h2')
 
-        for county in counties:
+            for county in counties:
 
-            if 'County' not in county.text and 'Ward' not in county.text:
+                if 'County' not in county.text and 'Ward' not in county.text and 'City' not in county.text:
 
-                pass
+                    pass
 
-            elif 'Schools' in county.text:
-                
-                print('*'*50, 'You are in Idaho', '*'*50)
+                elif state_name == 'Idaho':
+                    
+                    print('*'*50, 'You are in Idaho', '*'*50)
 
-                time.sleep(0.001)
+                    time.sleep(0.001)
 
-                next_element = county.find_next_sibling()
+                    next_element = county.find_next_sibling()
 
-                while True:
+                    while True:
 
-                    if next_element.name == 'div' or next_element.name == 'ul':
-
-                        print('next element: ', next_element.name)
-
-                        time.sleep(0.001)
-
-                        school_list = next_element.find_all('li')
-                        schools = [school.text for school in school_list]
-
-                        for school in schools:
-
-                            if ', ' in school:
-
-                                school_info = school.split(', ')
-                                name = school_info[0]
-                                city = school_info[1]
-
-                                school_output = {
-                                    'School name': name, 
-                                    'State': state_name,
-                                    'County/Wars': county,
-                                    'City/town/village/District': city,
-                                }
-
-                                all_schools.append(school_output)
-
-                                print(school_output)
-
-                                time.sleep(0.001)
-
-                    elif next_element.name == 'h3':
-                        print('next element: ', next_element.name)
-
-                        county = next_element.text
-
-                        time.sleep(0.001)
-
-                    elif next_element.name == 'h2':
-                        break
-
-                    else:
-                        pass
-
-                    next_element = next_element.find_next_sibling()
-
-            else:
-
-                print('*'*50, county.text, '*'*50)
-
-                time.sleep(0.001)
-
-                next_element = county.find_next_sibling()
-
-                city = ''
-
-                while True:
-
-                    if next_element.name == 'div' or next_element.name == 'ul':
-
-                        try:
-
-                            if next_element['class'][0] == 'hatnote navigation-not-searchable':
-                                pass
-
-                            else:
-                                raise KeyError
-                        
-                        except KeyError:
+                        if next_element.name == 'div' or next_element.name == 'ul':
 
                             print('next element: ', next_element.name)
 
                             time.sleep(0.001)
 
                             school_list = next_element.find_all('li')
-
                             schools = [school.text for school in school_list]
 
-                            parsed_schools = []
-
                             for school in schools:
-                                
-                                school_info = school.split('\n')
-
-                                if len(school_info) > 1:
-
-                                    print('''
-                                    
-                                    
-                                    An error ocurred.
-                                    
-                                    
-                                    ''', school_info, '''
-                                    
-                                    
-                                    
-                                    
-                                    ''')
-
-                                    pass
-
-                                else:
-
-                                    school = school_info[0]
-                                    parsed_schools.append(school)
-
-
-                                time.sleep(0.001)
-
-                            for school in parsed_schools:
-
-                                school = re.sub(cleaning_pattern, '', school)
 
                                 if ', ' in school:
 
                                     school_info = school.split(', ')
+
                                     name = school_info[0]
                                     city = school_info[1]
 
                                     school_output = {
                                         'School name': name, 
                                         'State': state_name,
-                                        'County/Ward': county.text.replace('[edit]',''),
-                                        'City/town/village/District': city.replace('[edit]',''),
+                                        'County/Wars': county,
+                                        'City/town/village/District': city,
                                     }
 
                                     all_schools.append(school_output)
@@ -247,64 +148,264 @@ def get_schools(states_urls):
 
                                     time.sleep(0.001)
 
-                                elif city:
+                        elif next_element.name == 'h3':
+                            print('next element: ', next_element.name)
 
-                                    school_output = {
-                                        'School name': school, 
-                                        'State': state_name,
-                                        'County/Ward': county.text.replace('[edit]',''),
-                                        'City/town/village/District': city.replace('[edit]',''),
-                                    }
+                            county = next_element.text
 
-                                    all_schools.append(school_output)
+                            time.sleep(0.001)
 
-                                    print(school_output)
-
-                                    time.sleep(0.001)
-
-                                else:
-
-                                    school_output = {
-                                        'School name': school, 
-                                        'State': state_name,
-                                        'County/Ward': county.text.replace('[edit]',''),
-                                        'City/town/village/District': 'Not specified',
-                                    }
-
-                                    all_schools.append(school_output)
-
-                                    print(school_output)
-
-                                    time.sleep(0.001)
-
-                    elif next_element.name == 'h3':
-                        print('next element: ', next_element.name)
-
-                        ne = next_element.text
-
-                        if any(kw in ne for kw in key_words):
-
-                            print('Not a city or district - Not valid h3 element')
-
-                            pass
+                        elif next_element.name == 'h2':
+                            break
 
                         else:
-                            city = next_element.text
+                            pass
 
-                            print(city)
+                        next_element = next_element.find_next_sibling()
 
-                        time.sleep(0.001)
+                else:
 
-                    elif next_element.name == 'h2':
-                        break
+                    print('*'*50, county.text, '*'*50)
 
-                    else:
-                        pass
+                    time.sleep(0.001)
 
-                    next_element = next_element.find_next_sibling()
+                    next_element = county.find_next_sibling()
+
+                    city = ''
+
+                    while True:
+
+                        if next_element.name == 'div' or next_element.name == 'ul':
+
+                            try:
+
+                                if next_element['class'][0] == 'hatnote navigation-not-searchable':
+                                    pass
+
+                                else:
+                                    raise KeyError
+                            
+                            except KeyError:
+
+                                print('next element: ', next_element.name)
+
+                                time.sleep(0.001)
+
+                                school_list = next_element.find_all('li')
+
+                                schools = [school.text for school in school_list]
+
+                                parsed_schools = []
+
+                                for school in schools:
+                                    
+                                    school_info = school.split('\n')
+
+                                    if len(school_info) > 1:
+
+                                        print('''
+                                        
+                                        
+                                        An error ocurred.
+                                        
+                                        
+                                        ''', school_info, '''
+                                        
+                                        
+                                        
+                                        
+                                        ''')
+
+                                        pass
+
+                                    else:
+
+                                        school = school_info[0]
+                                        parsed_schools.append(school)
+
+
+                                    time.sleep(0.001)
+
+                                for school in parsed_schools:
+
+                                    school = re.sub(cleaning_pattern, '', school)
+
+                                    if ', ' in school:
+
+                                        school_info = school.split(', ')
+
+                                        if school_info > 2:
+
+                                            name == ''
+                                            for school_splited_name in school_info[0:len(school_info)-1]:
+
+                                                name += school_splited_name.text 
+
+                                            school_output = {
+                                                'School name': name, 
+                                                'State': state_name,
+                                                'County/Ward': county.text.replace('[edit]',''),
+                                                'City/town/village/District': school_info[len(school_info)-1].replace('[edit]',''),
+                                            }
+
+                                            all_schools.append(school_output)
+
+                                            print(school_output)
+
+                                            time.sleep(0.001)
+
+                                        else:
+                                            name = school_info[0]
+
+                                            school_output = {
+                                                'School name': name, 
+                                                'State': state_name,
+                                                'County/Ward': county.text.replace('[edit]',''),
+                                                'City/town/village/District': school_info[1].replace('[edit]',''),
+                                            }
+
+                                            all_schools.append(school_output)
+
+                                            print(school_output)
+
+                                            time.sleep(0.001)
+
+                                    elif city:
+
+                                        school_output = {
+                                            'School name': school, 
+                                            'State': state_name,
+                                            'County/Ward': county.text.replace('[edit]',''),
+                                            'City/town/village/District': city.replace('[edit]',''),
+                                        }
+
+                                        all_schools.append(school_output)
+
+                                        print(school_output)
+
+                                        time.sleep(0.001)
+
+                                    else:
+
+                                        school_output = {
+                                            'School name': school, 
+                                            'State': state_name,
+                                            'County/Ward': county.text.replace('[edit]',''),
+                                            'City/town/village/District': 'Not specified',
+                                        }
+
+                                        all_schools.append(school_output)
+
+                                        print(school_output)
+
+                                        time.sleep(0.001)
+
+                        elif next_element.name == 'h3':
+                            print('next element: ', next_element.name)
+
+                            ne = next_element.text
+
+                            if any(kw in ne for kw in key_words):
+
+                                print('Not a city or district - Not valid h3 element')
+
+                                pass
+
+                            else:
+                                city = next_element.text
+
+                                print(city)
+
+                            time.sleep(0.001)
+
+                        elif next_element.name == 'h2':
+                            break
+
+                        else:
+                            pass
+
+                        next_element = next_element.find_next_sibling()
 
     return all_schools
 
+
+#check Massachusetts and New Jersey and North Dakota and Utah (problems with ' - ')
+
+def new_jersey(url):
+
+    request = requests.get(url)
+    soup = BeautifulSoup(request.text, 'html.parser')
+
+    time.sleep(0.001)
+
+    counties = soup.find_all('h3')
+
+    output = []
+
+    for county in counties:
+
+        if 'County' not in county.text:
+            pass
+
+        else:
+
+            next_element = county.find_next_sibling()
+
+            while True:
+
+                if next_element.name == 'div' or next_element.name == 'ul':
+
+                    print('next element: ', next_element.name)
+
+                    time.sleep(0.001)
+
+                    school_list = next_element.find_all('li')
+                    schools = [school.text for school in school_list]
+
+                    for school in schools:
+
+                        if ', ' in school:
+
+                            school_info = school.split(', ')
+
+                            name = school_info[0]
+                            city = school_info[1]
+
+                            school_output = {
+                            'School name': name, 
+                            'State': 'New Jersey',
+                            'County/Wars': county.text.replace('[edit]',''),
+                            'City/town/village/District': city,
+                            }
+
+                            output.append(school_output)
+
+                            print(school_output)
+
+                            time.sleep(0.001)
+
+                        else:
+
+                            school_output = {
+                            'School name': school, 
+                            'State': 'New Jersey',
+                            'County/Ward': county.text.replace('[edit]',''),
+                            'City/town/village/District': 'Not specified',
+                            }
+
+                            output.append(school_output)
+
+                            print(school_output)
+
+                            time.sleep(0.001)
+
+                elif next_element.name == 'h3':
+                    break
+
+                else:
+                    pass
+
+                next_element = next_element.find_next_sibling()
 
 def missouri(url,state_name):   #Works
 
@@ -740,4 +841,6 @@ def SaveData(OP):
 
 
 
-get_schools(get_state_urls(parent_url))
+new_jersey('https://en.wikipedia.org/wiki/List_of_high_schools_in_New_Jersey')
+
+#get_schools(get_state_urls(parent_url))
