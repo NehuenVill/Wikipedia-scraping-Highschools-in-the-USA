@@ -1,4 +1,3 @@
-from hashlib import new
 from bs4 import BeautifulSoup
 import pandas as pd
 import requests
@@ -450,6 +449,8 @@ def get_schools(states_urls):
                         next_element = next_element.find_next_sibling()
 
     return all_schools
+
+# Special functions:
 
 def ny_city():          #Works great
     
@@ -1255,9 +1256,6 @@ def SaveData(OP):
 
     df = pd.DataFrame(OP, columns=['School name', 'State', 'County/Ward', 'City/town/village/District'])
     df.to_excel('High_Schools_in_the_USA.xls', index=True, columns=['School name', 'State', 'County/Ward', 'City/town/village/District'])
-
-
-
 
 
 
